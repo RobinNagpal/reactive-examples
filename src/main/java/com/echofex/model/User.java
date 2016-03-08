@@ -8,6 +8,6 @@ public class User {
     private double salary;
 
     public String getCountryCode() {
-        return null;
+        return "CA";
     }
 }

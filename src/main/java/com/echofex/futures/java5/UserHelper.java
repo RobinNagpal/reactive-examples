@@ -5,6 +5,9 @@ import com.echofex.futures.java5.service.EmploymentService;
 import com.echofex.futures.java5.service.FinancialService;
 import com.echofex.futures.java5.service.MoneyTransferService;
 import com.echofex.futures.java5.service.UserService;
+import com.echofex.futures.java5.service.impl.EmploymentServiceImpl;
+import com.echofex.futures.java5.service.impl.FinancialServiceImpl;
+import com.echofex.futures.java5.service.impl.UserServiceImpl;
 import com.echofex.futures.util.MoneyTransferServiceFactory;
 import com.echofex.model.BankDetails;
 import com.echofex.model.Employer;
@@ -17,9 +20,9 @@ import java.util.List;
  */
 public class UserHelper {
 
-    UserService userService = null;
-    EmploymentService employmentService = null;
-    FinancialService financialService = null;
+    UserService userService = new UserServiceImpl();
+    EmploymentService employmentService = new EmploymentServiceImpl();
+    FinancialService financialService = new FinancialServiceImpl();
 
     public void transferYearlyEarningsToUsersAccount(long userId){
         User user = userService.getUserForId(userId);

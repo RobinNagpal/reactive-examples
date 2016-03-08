@@ -46,6 +46,6 @@ public class EmploymentServiceImpl implements EmploymentService{
        if(employerId == 101l)
             return Math.random() * 90000.0;
 
-        return 0.0;
+        throw new IllegalArgumentException();
     }
 }

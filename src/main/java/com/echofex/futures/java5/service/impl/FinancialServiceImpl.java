@@ -21,7 +21,7 @@ public class FinancialServiceImpl implements FinancialService {
         if(countryCode.equals("CA"))
             return "CAD";
 
-        return null;
+        throw new IllegalArgumentException();
     }
 
     public Double getCurrencyConversion(String fromCurrencyCode, String toCountryCode) {
@@ -43,8 +43,14 @@ public class FinancialServiceImpl implements FinancialService {
             return .022222;
         if (fromCurrencyCode.equals("INR") && toCountryCode.equals("USD"))
             return .017222;
+        if (fromCurrencyCode.equals("USD") && toCountryCode.equals("USD"))
+            return 1.0;
+        if (fromCurrencyCode.equals("INR") && toCountryCode.equals("INR"))
+            return 1.0;
+        if (fromCurrencyCode.equals("CAD") && toCountryCode.equals("CAD"))
+            return 1.0;
 
-        return null;
+        throw new IllegalArgumentException("Cannot find conversion from " + fromCurrencyCode + "  to  " + toCountryCode );
     }
 
     public BankDetails getBankDetailsForUser(long userId) {
@@ -54,6 +60,7 @@ public class FinancialServiceImpl implements FinancialService {
             e.printStackTrace();
         }
 
-        return null;
+
+        return new BankDetails("4056777", "Royal Bank Of Canada");
     }
 }
