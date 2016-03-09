@@ -24,33 +24,33 @@ public class FinancialServiceImpl implements FinancialService {
         throw new IllegalArgumentException();
     }
 
-    public Double getCurrencyConversion(String fromCurrencyCode, String toCountryCode) {
+    public Double getCurrencyConversion(String fromCurrencyCode, String toCurrencyCode) {
         try {
             Thread.sleep(2000l);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        if (fromCurrencyCode.equals("CAD") && toCountryCode.equals("INR"))
+        if (fromCurrencyCode.equals("CAD") && toCurrencyCode.equals("INR"))
             return 45.00;
-        if (fromCurrencyCode.equals("CAD") && toCountryCode.equals("USD"))
+        if (fromCurrencyCode.equals("CAD") && toCurrencyCode.equals("USD"))
             return .730;
-        if (fromCurrencyCode.equals("USD") && toCountryCode.equals("INR"))
+        if (fromCurrencyCode.equals("USD") && toCurrencyCode.equals("INR"))
             return 62.00;
-        if (fromCurrencyCode.equals("USD") && toCountryCode.equals("CAD"))
+        if (fromCurrencyCode.equals("USD") && toCurrencyCode.equals("CAD"))
             return 1.35;
-        if (fromCurrencyCode.equals("INR") && toCountryCode.equals("CAD"))
+        if (fromCurrencyCode.equals("INR") && toCurrencyCode.equals("CAD"))
             return .022222;
-        if (fromCurrencyCode.equals("INR") && toCountryCode.equals("USD"))
+        if (fromCurrencyCode.equals("INR") && toCurrencyCode.equals("USD"))
             return .017222;
-        if (fromCurrencyCode.equals("USD") && toCountryCode.equals("USD"))
+        if (fromCurrencyCode.equals("USD") && toCurrencyCode.equals("USD"))
             return 1.0;
-        if (fromCurrencyCode.equals("INR") && toCountryCode.equals("INR"))
+        if (fromCurrencyCode.equals("INR") && toCurrencyCode.equals("INR"))
             return 1.0;
-        if (fromCurrencyCode.equals("CAD") && toCountryCode.equals("CAD"))
+        if (fromCurrencyCode.equals("CAD") && toCurrencyCode.equals("CAD"))
             return 1.0;
 
-        throw new IllegalArgumentException("Cannot find conversion from " + fromCurrencyCode + "  to  " + toCountryCode );
+        throw new IllegalArgumentException("Cannot find conversion from " + fromCurrencyCode + "  to  " + toCurrencyCode );
     }
 
     public BankDetails getBankDetailsForUser(long userId) {
