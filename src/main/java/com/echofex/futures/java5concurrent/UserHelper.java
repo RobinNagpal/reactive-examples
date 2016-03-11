@@ -14,6 +14,8 @@ import com.echofex.model.Employer;
 import com.echofex.model.User;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Created by robin on 3/6/16.
@@ -25,12 +27,12 @@ public class UserHelper {
     EmploymentService employmentService = new EmploymentServiceImpl();
     FinancialService financialService = new FinancialServiceImpl();
 
-    public void transferYearlyEarningsToUsersAccount(long userId){
-        User user = userService.getUserForId(userId);
+    public void transferYearlyEarningsToUsersAccount(Long userId) throws ExecutionException, InterruptedException {
+        Future<User> user = userService.getUserForId(new DummyFuture<Long>(userId));
 
-        List<Employer> employers = employmentService.findEmployersForUserInYear(userId, "2015");
+        Future<List<Employer>> employers = employmentService.findEmployersForUserInYear(new DummyFuture<Long>(userId), new DummyFuture<String>("2015"));
 
-        String homeCurrencyOfUser = financialService.getCurrencyCodeForCountry(user.getCountryCode());
+        Future<String> homeCurrencyOfUser = financialService.getCurrencyCodeForCountry(new DummyFuture<String>(user.get().getCountryCode()));
 
 
         Double totalEarnings = 0.0;
