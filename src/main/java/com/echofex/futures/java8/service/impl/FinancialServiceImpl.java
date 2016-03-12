@@ -1,6 +1,6 @@
-package com.echofex.futures.java5concurrent.service.impl;
+package com.echofex.futures.java8.service.impl;
 
-import com.echofex.futures.java5concurrent.service.FinancialService;
+import com.echofex.futures.java8.service.FinancialService;
 import com.echofex.model.BankDetails;
 
 import java.util.concurrent.Callable;

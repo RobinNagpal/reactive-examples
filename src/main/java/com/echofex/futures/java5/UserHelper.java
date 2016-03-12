@@ -8,7 +8,7 @@ import com.echofex.futures.java5.service.UserService;
 import com.echofex.futures.java5.service.impl.EmploymentServiceImpl;
 import com.echofex.futures.java5.service.impl.FinancialServiceImpl;
 import com.echofex.futures.java5.service.impl.UserServiceImpl;
-import com.echofex.futures.util.MoneyTransferServiceFactory;
+import com.echofex.futures.java5.util.MoneyTransferServiceFactory;
 import com.echofex.model.BankDetails;
 import com.echofex.model.Employer;
 import com.echofex.model.User;

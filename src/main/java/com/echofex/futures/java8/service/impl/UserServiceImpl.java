@@ -1,7 +1,7 @@
-package com.echofex.futures.java5concurrent.service.impl;
+package com.echofex.futures.java8.service.impl;
 
-import com.echofex.futures.java5concurrent.DummyFuture;
-import com.echofex.futures.java5concurrent.service.UserService;
+import com.echofex.futures.java8.DummyFuture;
+import com.echofex.futures.java8.service.UserService;
 import com.echofex.model.User;
 
 import java.util.concurrent.ExecutionException;
@@ -17,6 +17,6 @@ public class UserServiceImpl implements UserService {
     public Future<User> getUserForId(Future<Long> id) throws ExecutionException, InterruptedException {
         id.get();
 
-        return new  DummyFuture<User> (new User());
+        return new DummyFuture<User>(new User());
     }
 }

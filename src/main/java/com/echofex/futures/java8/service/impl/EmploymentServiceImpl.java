@@ -1,11 +1,12 @@
-package com.echofex.futures.java5concurrent.service.impl;
+package com.echofex.futures.java8.service.impl;
 
-import com.echofex.futures.java5concurrent.service.EmploymentService;
+import com.echofex.futures.java8.service.EmploymentService;
 import com.echofex.model.Employer;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 /**
@@ -13,7 +14,7 @@ import java.util.concurrent.Future;
  */
 public class EmploymentServiceImpl implements EmploymentService {
 
-    public Future<List<Employer>> findEmployersForUserInYear(final Future<Long> userId, final Future<String> year) {
+    public Future<List<Employer>> findEmployersForUserInYear(final CompletableFuture<Long> userId, final CompletableFuture<String> year) {
 
         Callable<List<Employer>> worker = new Callable<List<Employer>>() {
 
@@ -47,7 +48,7 @@ public class EmploymentServiceImpl implements EmploymentService {
         return future;
     }
 
-    public Future<Double> getYearlyEarningForUserWithEmployer(final Future<Long> userId, final Future<Long> employerId) {
+    public Future<Double> getYearlyEarningForUserWithEmployer(final CompletableFuture<Long> userId, final CompletableFuture<Long> employerId) {
 
 
         Callable<Double> worker = new Callable<Double>() {

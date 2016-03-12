@@ -2,6 +2,8 @@ package com.echofex.futures.java8.service;
 
 import com.echofex.model.User;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -9,6 +11,7 @@ import java.util.concurrent.Future;
  */
 public interface UserService {
 
-    Future<User> getUserForId(long id);
+    CompletableFuture<User> getUserForId(CompletableFuture<Long> id) throws ExecutionException, InterruptedException;
+
 
 }

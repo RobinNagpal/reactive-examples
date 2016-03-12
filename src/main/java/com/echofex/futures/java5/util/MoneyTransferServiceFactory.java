@@ -1,4 +1,4 @@
-package com.echofex.futures.util;
+package com.echofex.futures.java5.util;
 
 import com.echofex.futures.java5.service.MoneyTransferService;
 import com.echofex.futures.java5.service.impl.MoneyTransferServiceImpl;

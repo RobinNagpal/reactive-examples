@@ -2,6 +2,7 @@ package com.echofex.futures.java8.service;
 
 import com.echofex.model.BankDetails;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 /**
@@ -9,12 +10,12 @@ import java.util.concurrent.Future;
  */
 public interface FinancialService {
 
-    Future<String> getCurrencyCodeForCountry(String countryCode);
+    CompletableFuture<String> getCurrencyCodeForCountry(Future<String> countryCode);
 
-    Future<Double> getCurrencyConversion(String fromCurrencyCode, String toCountryCode);
+    CompletableFuture<Double> getCurrencyConversion(Future<String> fromCurrencyCode, Future<String> toCountryCode);
 
-    Future<BankDetails> getBankDetailsForUser(long userId);
+    CompletableFuture<BankDetails> getBankDetailsForUser(Future<Long> userId);
 
-    void transferMoneyToAccount(String bankName, String accountNumber, Double amount);
+
 
 }

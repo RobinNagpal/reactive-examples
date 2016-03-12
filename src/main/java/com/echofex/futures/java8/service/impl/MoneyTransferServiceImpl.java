@@ -1,6 +1,7 @@
-package com.echofex.futures.java5concurrent.service.impl;
+package com.echofex.futures.java8.service.impl;
 
-import com.echofex.futures.java5concurrent.service.MoneyTransferService;
+import com.echofex.futures.java8.service.MoneyTransferService;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 

@@ -2,6 +2,7 @@ package com.echofex.futures.java5concurrent.service;
 
 import com.echofex.model.User;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -9,7 +10,7 @@ import java.util.concurrent.Future;
  */
 public interface UserService {
 
-    Future<User> getUserForId(Future<Long> id);
+    Future<User> getUserForId(Future<Long> id) throws ExecutionException, InterruptedException;
 
 
 }

@@ -2,6 +2,8 @@ package com.echofex.futures.java8.service;
 
 import com.echofex.model.Employer;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 /**
@@ -9,6 +11,7 @@ import java.util.concurrent.Future;
  */
 public interface EmploymentService {
 
-    Future<Employer> findEmployer(String eId);
+    CompletableFuture<List<Employer>> findEmployersForUserInYear(CompletableFuture<Long> userId, CompletableFuture<String> year);
 
+    CompletableFuture<Double> getYearlyEarningForUserWithEmployer(CompletableFuture<Long> userId, CompletableFuture<Long> employerId);
 }
