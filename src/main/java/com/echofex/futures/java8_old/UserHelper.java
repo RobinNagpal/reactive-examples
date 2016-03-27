@@ -41,23 +41,27 @@ public class UserHelper {
 
         CompletableFuture<Stream<Double>> employerSalaries = employersListCF.thenApplyAsync(employers -> {
                     return employers.stream().parallel().map(emp -> {
-                                String userHomeCurrency = null;
+
+                                CompletableFuture<String> employerCurrencyCF = CompletableFuture.completedFuture(financialService.getCurrencyCodeForCountry(emp.getCountryCode()));
+
+                                CompletableFuture<Double> currencyConvCF = employerCurrencyCF.thenCombineAsync(userHomeCurrencyCF, (employerCurrency, userHomeCurrency) -> {
+                                    return financialService.getCurrencyConversion(employerCurrency, userHomeCurrency);
+                                });
+
+                               Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
+                                CompletableFuture<Double> earlyEarningsInHomeCountryCF = currencyConvCF.thenApplyAsync(currencyConv -> {
+                               //     Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
+                                    return currencyConv * yearlyEarnings;
+                                });
+
                                 try {
-                                    userHomeCurrency = userHomeCurrencyCF.get();
-                                } catch (Exception e) {
+                                    return earlyEarningsInHomeCountryCF.get();
+                                } catch (InterruptedException e) {
                                     e.printStackTrace();
-
+                                } catch (ExecutionException e) {
+                                    e.printStackTrace();
                                 }
-
-
-                                String employerCurrency = financialService.getCurrencyCodeForCountry(emp.getCountryCode());
-                                Double currencyConversion = financialService.getCurrencyConversion(employerCurrency, userHomeCurrency);
-                                Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
-                                Double earlyEarningsInHomeCountry = currencyConversion * yearlyEarnings;
-                                System.out.println("Yearly Earning " + earlyEarningsInHomeCountry);
-                                return earlyEarningsInHomeCountry;
-
-
+                                return 0.0;
                             }
                     );
                 }

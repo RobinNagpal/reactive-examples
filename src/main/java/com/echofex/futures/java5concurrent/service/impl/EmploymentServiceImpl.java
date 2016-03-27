@@ -64,12 +64,13 @@ public class EmploymentServiceImpl implements EmploymentService {
                     e.printStackTrace();
                 }
 
-                if (empId == 12l)
-                    return Math.random() * 100000.0;
-                if (empId == 13l)
-                    return Math.random() * 1445000.0;
-                if (empId == 101l)
-                    return Math.random() * 90000.0;
+
+                if(empId == 12l)
+                    return 100000.0;
+                if(empId == 13l)
+                    return 1445000.0;
+                if(empId == 101l)
+                    return 90000.0;
 
                 throw new IllegalArgumentException();
             }
