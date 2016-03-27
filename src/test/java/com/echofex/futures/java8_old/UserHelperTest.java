@@ -16,9 +16,9 @@ public class UserHelperTest {
     @Test
     public void testTransferYearlyEarningsToUsersAccount() throws Exception {
         long startTime = new Date().getTime();
-        userHelper.transferYearlyEarningsToUsersAccount(333l);
+        Double result = userHelper.transferYearlyEarningsToUsersAccount(333l);
         long endTime = new Date().getTime();
-
+        System.out.println("Result :" + result);
         System.out.println("Time taken :" + (endTime - startTime));
     }
 }

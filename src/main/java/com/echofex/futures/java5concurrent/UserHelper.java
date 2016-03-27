@@ -27,7 +27,7 @@ public class UserHelper {
     EmploymentService employmentService = new EmploymentServiceImpl();
     FinancialService financialService = new FinancialServiceImpl();
 
-    public void transferYearlyEarningsToUsersAccount(Long userId) throws ExecutionException, InterruptedException {
+    public Future<Double> transferYearlyEarningsToUsersAccount(Long userId) throws ExecutionException, InterruptedException {
         Future<User> user = userService.getUserForId(new DummyFuture<Long>(userId));
 
         Future<List<Employer>> employers = employmentService.findEmployersForUserInYear(new DummyFuture<Long>(userId), new DummyFuture<String>("2015"));
@@ -51,7 +51,7 @@ public class UserHelper {
 
         MoneyTransferService moneyTransferService = MoneyTransferServiceFactory.getMoneyTransferServiceForCurrency(homeCurrencyOfUser);
 
-        moneyTransferService.transferMoneyToAccount(new DummyFuture<String>(bankDetails.get().getBankName()), new DummyFuture<String>(bankDetails.get().getAccountNumber()), new DummyFuture<Double>(totalEarnings) );
+        return moneyTransferService.transferMoneyToAccount(new DummyFuture<String>(bankDetails.get().getBankName()), new DummyFuture<String>(bankDetails.get().getAccountNumber()), new DummyFuture<Double>(totalEarnings) );
 
 
     }

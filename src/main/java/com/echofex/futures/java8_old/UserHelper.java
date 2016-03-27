@@ -16,7 +16,6 @@ import com.echofex.model.User;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,7 +29,7 @@ public class UserHelper {
     EmploymentService employmentService = new EmploymentServiceImpl();
     FinancialService financialService = new FinancialServiceImpl();
 
-    public void transferYearlyEarningsToUsersAccount(Long userId) throws ExecutionException, InterruptedException {
+    public Double transferYearlyEarningsToUsersAccount(Long userId) throws ExecutionException, InterruptedException {
 
 
         CompletableFuture<Long> userIdFuture = CompletableFuture.completedFuture(userId);
@@ -49,15 +48,16 @@ public class UserHelper {
                                     e.printStackTrace();
 
                                 }
-                                if (userHomeCurrency != null) {
 
-                                    String employerCurrency = financialService.getCurrencyCodeForCountry(emp.getCountryCode());
-                                    Double currencyConversion = financialService.getCurrencyConversion(employerCurrency, userHomeCurrency);
-                                    Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
-                                    Double earlyEarningsInHomeCountry = currencyConversion * yearlyEarnings;
-                                    return earlyEarningsInHomeCountry;
-                                }
-                                return 0.0;
+
+                                String employerCurrency = financialService.getCurrencyCodeForCountry(emp.getCountryCode());
+                                Double currencyConversion = financialService.getCurrencyConversion(employerCurrency, userHomeCurrency);
+                                Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
+                                Double earlyEarningsInHomeCountry = currencyConversion * yearlyEarnings;
+                                System.out.println("Yearly Earning " + earlyEarningsInHomeCountry);
+                                return earlyEarningsInHomeCountry;
+
+
                             }
                     );
                 }
@@ -67,6 +67,7 @@ public class UserHelper {
         List<Double> salaries = employerSalaries.get().collect(Collectors.toList());
         double totalSalary = 0.0;
         for (Double salary : salaries) {
+
             totalSalary += salary;
         }
 
@@ -76,7 +77,7 @@ public class UserHelper {
 
         MoneyTransferService moneyTransferService = moneyTransferServiceCF.get();
         BankDetails bankDetails = bankDetailsCF.get();
-        moneyTransferService.transferMoneyToAccount(bankDetails.getBankName(), bankDetails.getAccountNumber(), totalSalary);
+        return moneyTransferService.transferMoneyToAccount(bankDetails.getBankName(), bankDetails.getAccountNumber(), totalSalary);
     }
 
 

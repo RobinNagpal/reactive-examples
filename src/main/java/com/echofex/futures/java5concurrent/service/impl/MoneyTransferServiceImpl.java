@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
  * Created by robin on 3/7/16.
  */
 public class MoneyTransferServiceImpl implements MoneyTransferService {
-    public void transferMoneyToAccount(final Future<String> bankName, final Future<String> accountNumber, final Future<Double> amount) {
+    public Future<Double> transferMoneyToAccount(final Future<String> bankName, final Future<String> accountNumber, final Future<Double> amount) {
         Runnable worker = new Runnable() {
 
             public void run() {
@@ -31,6 +31,8 @@ public class MoneyTransferServiceImpl implements MoneyTransferService {
             }
         };
         ExecutorServiceImpl.executor.submit(worker);
+
+        return amount;
     }
 
 

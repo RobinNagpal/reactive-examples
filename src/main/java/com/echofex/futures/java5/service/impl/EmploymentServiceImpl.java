@@ -40,11 +40,11 @@ public class EmploymentServiceImpl implements EmploymentService{
 
 
         if(employerId == 12l)
-            return Math.random() * 100000.0;
+            return 100000.0;
        if(employerId == 13l)
-            return Math.random() * 1445000.0;
+            return 1445000.0;
        if(employerId == 101l)
-            return Math.random() * 90000.0;
+            return 90000.0;
 
         throw new IllegalArgumentException();
     }

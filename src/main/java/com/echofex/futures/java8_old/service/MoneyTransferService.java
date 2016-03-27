@@ -6,5 +6,5 @@ package com.echofex.futures.java8_old.service;
 public interface MoneyTransferService {
 
 
-    void transferMoneyToAccount(String bankName, String accountNumber, Double amount);
+    Double transferMoneyToAccount(String bankName, String accountNumber, Double amount);
 }

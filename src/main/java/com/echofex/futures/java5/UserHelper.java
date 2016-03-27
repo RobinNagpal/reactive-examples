@@ -25,7 +25,7 @@ public class UserHelper {
     EmploymentService employmentService = new EmploymentServiceImpl();
     FinancialService financialService = new FinancialServiceImpl();
 
-    public void transferYearlyEarningsToUsersAccount(long userId){
+    public Double transferYearlyEarningsToUsersAccount(long userId){
         User user = userService.getUserForId(userId);
 
         List<Employer> employers = employmentService.findEmployersForUserInYear(userId, "2015");
@@ -44,6 +44,7 @@ public class UserHelper {
 
             Double earlyEarningsInHomeCountry = currencyConversion * yearlyEarnings;
 
+            System.out.println("Yearly Earning " + earlyEarningsInHomeCountry);
             totalEarnings += earlyEarningsInHomeCountry;
         }
 
@@ -51,7 +52,7 @@ public class UserHelper {
 
         MoneyTransferService moneyTransferService = MoneyTransferServiceFactory.getMoneyTransferServiceForCurrency(homeCurrencyOfUser);
 
-        moneyTransferService.transferMoneyToAccount(bankDetails.getBankName(), bankDetails.getAccountNumber(), totalEarnings );
+        return moneyTransferService.transferMoneyToAccount(bankDetails.getBankName(), bankDetails.getAccountNumber(), totalEarnings );
 
 
     }

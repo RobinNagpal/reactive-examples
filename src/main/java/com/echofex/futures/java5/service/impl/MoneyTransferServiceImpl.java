@@ -7,13 +7,15 @@ import com.echofex.futures.java5.service.MoneyTransferService;
  */
 public class MoneyTransferServiceImpl implements MoneyTransferService {
 
-    public void transferMoneyToAccount(String bankName, String accountNumber, Double amount) {
+    public Double transferMoneyToAccount(String bankName, String accountNumber, Double amount) {
 
         try {
             Thread.sleep(1000l);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        return amount;
 
     }
 

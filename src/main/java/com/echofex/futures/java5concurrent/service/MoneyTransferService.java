@@ -8,5 +8,5 @@ import java.util.concurrent.Future;
 public interface MoneyTransferService {
 
 
-    void transferMoneyToAccount(Future<String> bankName, Future<String> accountNumber, Future<Double> amount);
+    Future<Double> transferMoneyToAccount(Future<String> bankName, Future<String> accountNumber, Future<Double> amount);
 }
