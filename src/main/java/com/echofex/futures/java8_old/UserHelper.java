@@ -16,6 +16,7 @@ import com.echofex.model.User;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,7 +40,7 @@ public class UserHelper {
         CompletableFuture<List<Employer>> employersListCF = userIdFuture.thenApplyAsync(id -> employmentService.findEmployersForUserInYear(id, "2015"));
 
 
-        CompletableFuture<Stream<Double>> employerSalaries = employersListCF.thenApplyAsync(employers -> {
+        CompletableFuture<Stream<CompletableFuture<Double>>> employerSalariesCF = employersListCF.thenApplyAsync(employers -> {
                     return employers.stream().parallel().map(emp -> {
 
                                 CompletableFuture<String> employerCurrencyCF = CompletableFuture.completedFuture(financialService.getCurrencyCodeForCountry(emp.getCountryCode()));
@@ -48,32 +49,33 @@ public class UserHelper {
                                     return financialService.getCurrencyConversion(employerCurrency, userHomeCurrency);
                                 });
 
-                               Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
+                                Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
                                 CompletableFuture<Double> earlyEarningsInHomeCountryCF = currencyConvCF.thenApplyAsync(currencyConv -> {
-                               //     Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
+                                    //     Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
                                     return currencyConv * yearlyEarnings;
                                 });
 
-                                try {
-                                    return earlyEarningsInHomeCountryCF.get();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                } catch (ExecutionException e) {
-                                    e.printStackTrace();
-                                }
-                                return 0.0;
+                                return earlyEarningsInHomeCountryCF;
+
                             }
                     );
                 }
         );
 
+        CompletableFuture<Double> totalSalaryCF = employerSalariesCF.thenApplyAsync(salariesStream -> {
+            List<CompletableFuture<Double>> salariesCF = salariesStream.collect(Collectors.toList());
+            double totalSalary = 0.0;
+            for (CompletableFuture<Double> salaryCF : salariesCF) {
+                try {
+                    totalSalary += salaryCF.get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            return totalSalary;
+        });
 
-        List<Double> salaries = employerSalaries.get().collect(Collectors.toList());
-        double totalSalary = 0.0;
-        for (Double salary : salaries) {
 
-            totalSalary += salary;
-        }
 
         CompletableFuture<BankDetails> bankDetailsCF = userIdFuture.thenApplyAsync(financialService::getBankDetailsForUser);
         CompletableFuture<MoneyTransferService> moneyTransferServiceCF = userHomeCurrencyCF.thenApplyAsync(MoneyTransferServiceFactory::getMoneyTransferServiceForCurrency);
@@ -81,7 +83,7 @@ public class UserHelper {
 
         MoneyTransferService moneyTransferService = moneyTransferServiceCF.get();
         BankDetails bankDetails = bankDetailsCF.get();
-        return moneyTransferService.transferMoneyToAccount(bankDetails.getBankName(), bankDetails.getAccountNumber(), totalSalary);
+        return moneyTransferService.transferMoneyToAccount(bankDetails.getBankName(), bankDetails.getAccountNumber(), totalSalaryCF.get());
     }
 
 
