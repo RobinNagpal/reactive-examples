@@ -32,33 +32,16 @@ public class UserHelper {
     public Double transferYearlyEarningsToUsersAccount(Long userId) throws ExecutionException, InterruptedException {
 
 
-        CompletableFuture<Long> userIdFuture = CompletableFuture.completedFuture(userId);
-        CompletableFuture<User> userCF = userIdFuture.thenApplyAsync(userService::getUserForId);
-        CompletableFuture<String> userHomeCurrencyCF = userCF.thenApplyAsync(user -> financialService.getCurrencyCodeForCountry(user.getCountryCode()));
+        CompletableFuture<Long> userIdCF = CompletableFuture.completedFuture(userId);
+        CompletableFuture<User> userCF = userService.getUserForId(userIdCF);
+        CompletableFuture<String> countryCodeCF = userCF.thenApplyAsync(user -> user.getCountryCode());
+        CompletableFuture<String> userHomeCurrencyCF = financialService.getCurrencyCodeForCountry(countryCodeCF);
+        CompletableFuture<List<Employer>> employersListCF = employmentService.findEmployersForUserInYear(userIdCF, CompletableFuture.completedFuture("2015"));
 
-        CompletableFuture<List<Employer>> employersListCF = userIdFuture.thenApplyAsync(id -> employmentService.findEmployersForUserInYear(id, "2015"));
 
-
-        CompletableFuture<Stream<CompletableFuture<Double>>> employerSalariesCF = employersListCF.thenApplyAsync(employers -> {
-                    return employers.stream().parallel().map(emp -> {
-
-                                CompletableFuture<String> employerCurrencyCF = CompletableFuture.completedFuture(financialService.getCurrencyCodeForCountry(emp.getCountryCode()));
-
-                                CompletableFuture<Double> currencyConvCF = employerCurrencyCF.thenCombineAsync(userHomeCurrencyCF, (employerCurrency, userHomeCurrency) -> {
-                                    return financialService.getCurrencyConversion(employerCurrency, userHomeCurrency);
-                                });
-
-                                Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
-                                CompletableFuture<Double> earlyEarningsInHomeCountryCF = currencyConvCF.thenApplyAsync(currencyConv -> {
-                                    //     Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
-                                    return currencyConv * yearlyEarnings;
-                                });
-
-                                return earlyEarningsInHomeCountryCF;
-
-                            }
-                    );
-                }
+        CompletableFuture<Stream<CompletableFuture<Double>>> employerSalariesCF = employersListCF.thenApplyAsync(employers ->
+                employers.stream().parallel().map(emp ->
+                        getYearlyEarningsInHomeCurrencyForEmployer(userIdCF, userHomeCurrencyCF, emp))
         );
 
         CompletableFuture<Double> totalSalaryCF = employerSalariesCF.thenApplyAsync(salariesStream -> {
@@ -75,14 +58,22 @@ public class UserHelper {
         });
 
 
+        CompletableFuture<BankDetails> bankDetailsCF = financialService.getBankDetailsForUser(userIdCF);
+        CompletableFuture<MoneyTransferService> moneyTransferServiceCF = MoneyTransferServiceFactory.getMoneyTransferServiceForCurrency(userHomeCurrencyCF);
 
-        CompletableFuture<BankDetails> bankDetailsCF = userIdFuture.thenApplyAsync(financialService::getBankDetailsForUser);
-        CompletableFuture<MoneyTransferService> moneyTransferServiceCF = userHomeCurrencyCF.thenApplyAsync(MoneyTransferServiceFactory::getMoneyTransferServiceForCurrency);
+        CompletableFuture<Double> yearlyEarningsCF = moneyTransferServiceCF.thenComposeAsync(mtService ->
+                mtService.transferMoneyToAccount(bankDetailsCF.thenApplyAsync(bankDetails -> bankDetails.getBankName()), bankDetailsCF.thenApplyAsync(bankDetails -> bankDetails.getAccountNumber()), totalSalaryCF)
+        );
+        return yearlyEarningsCF.get();
+    }
 
-
-        MoneyTransferService moneyTransferService = moneyTransferServiceCF.get();
-        BankDetails bankDetails = bankDetailsCF.get();
-        return moneyTransferService.transferMoneyToAccount(bankDetails.getBankName(), bankDetails.getAccountNumber(), totalSalaryCF.get());
+    private CompletableFuture<Double> getYearlyEarningsInHomeCurrencyForEmployer(CompletableFuture<Long> userIdCF, CompletableFuture<String> userHomeCurrencyCF, Employer emp) {
+        CompletableFuture<String> empCountryCodeCF = CompletableFuture.completedFuture(emp.getCountryCode());
+        CompletableFuture<String> employerCurrencyCF = financialService.getCurrencyCodeForCountry(empCountryCodeCF);
+        CompletableFuture<Double> currencyConvCF = financialService.getCurrencyConversion(employerCurrencyCF, userHomeCurrencyCF);
+        CompletableFuture<Double> yearlyEarningsCF = employmentService.getYearlyEarningForUserWithEmployer(userIdCF, CompletableFuture.completedFuture(emp.getId()));
+        CompletableFuture<Double> earlyEarningsInHomeCountryCF = currencyConvCF.thenCombineAsync(yearlyEarningsCF, (currencyConv, yearlyEarnings) -> currencyConv * yearlyEarnings);
+        return earlyEarningsInHomeCountryCF;
     }
 
 

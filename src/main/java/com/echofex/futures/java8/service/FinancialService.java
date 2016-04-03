@@ -2,16 +2,18 @@ package com.echofex.futures.java8.service;
 
 import com.echofex.model.BankDetails;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Created by robin on 3/6/16.
  */
 public interface FinancialService {
 
-    String getCurrencyCodeForCountry(String countryCode);
+    CompletableFuture<String> getCurrencyCodeForCountry(CompletableFuture<String> countryCode);
 
-    Double getCurrencyConversion(String fromCurrencyCode, String toCountryCode);
+    CompletableFuture<Double> getCurrencyConversion(CompletableFuture<String> fromCurrencyCode, CompletableFuture<String> toCountryCode);
 
-    BankDetails getBankDetailsForUser(long userId);
+    CompletableFuture<BankDetails> getBankDetailsForUser(CompletableFuture<Long> userId);
 
 
 
