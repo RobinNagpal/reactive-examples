@@ -40,26 +40,26 @@ public class UserHelper {
         CompletableFuture<List<Employer>> employersListCF = userIdFuture.thenApplyAsync(id -> employmentService.findEmployersForUserInYear(id, "2015"));
 
 
-        CompletableFuture<Stream<CompletableFuture<Double>>> employerSalariesCF = employersListCF.thenApplyAsync(employers -> {
-                    return employers.stream().parallel().map(emp -> {
+        CompletableFuture<Stream<CompletableFuture<Double>>> employerSalariesCF = employersListCF.thenApplyAsync(employers ->
+                employers.parallelStream().map(emp -> {
 
-                                CompletableFuture<String> employerCurrencyCF = CompletableFuture.completedFuture(financialService.getCurrencyCodeForCountry(emp.getCountryCode()));
+                            CompletableFuture<String> employerCurrencyCF = CompletableFuture.completedFuture(financialService.getCurrencyCodeForCountry(emp.getCountryCode()));
 
-                                CompletableFuture<Double> currencyConvCF = employerCurrencyCF.thenCombineAsync(userHomeCurrencyCF, (employerCurrency, userHomeCurrency) -> {
-                                    return financialService.getCurrencyConversion(employerCurrency, userHomeCurrency);
-                                });
+                            CompletableFuture<Double> currencyConvCF = employerCurrencyCF.thenCombineAsync(userHomeCurrencyCF, (employerCurrency, userHomeCurrency) ->
+                                    financialService.getCurrencyConversion(employerCurrency, userHomeCurrency)
+                            );
 
-                                Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
-                                CompletableFuture<Double> earlyEarningsInHomeCountryCF = currencyConvCF.thenApplyAsync(currencyConv -> {
-                                    //     Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
-                                    return currencyConv * yearlyEarnings;
-                                });
+                            Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
+                            CompletableFuture<Double> earlyEarningsInHomeCountryCF = currencyConvCF.thenApplyAsync(currencyConv -> {
+                                //Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
+                                return currencyConv * yearlyEarnings;
+                            });
 
-                                return earlyEarningsInHomeCountryCF;
+                            return earlyEarningsInHomeCountryCF;
 
-                            }
-                    );
-                }
+                        }
+                )
+
         );
 
         CompletableFuture<Double> totalSalaryCF = employerSalariesCF.thenApplyAsync(salariesStream -> {
@@ -74,7 +74,6 @@ public class UserHelper {
             }
             return totalSalary;
         });
-
 
 
         CompletableFuture<BankDetails> bankDetailsCF = userIdFuture.thenApplyAsync(financialService::getBankDetailsForUser);

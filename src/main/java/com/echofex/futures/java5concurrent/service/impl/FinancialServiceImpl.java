@@ -79,13 +79,13 @@ public class FinancialServiceImpl implements FinancialService {
         return future;
     }
 
-    public Future<BankDetails> getBankDetailsForUser(final Future<Long> userId) {
+    public Future<BankDetails> getBankDetailsForUser(final Future<Long> userIdF) {
 
         Callable<BankDetails> worker = new Callable<BankDetails>() {
 
             public BankDetails call() throws Exception {
 
-                userId.get();
+                Long userId = userIdF.get();
 
                 try {
                     Thread.sleep(1000l);

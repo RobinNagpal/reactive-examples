@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by robin on 3/7/16.
  */
-public class EmploymentServiceImpl implements EmploymentService{
+public class EmploymentServiceImpl implements EmploymentService {
     public List<Employer> findEmployersForUserInYear(long userId, String year) {
 
         Employer metlife = new Employer(12l, "Metlife", "US");
