@@ -1,11 +1,10 @@
-package com.echofex.futures.java5.service.impl;
+package com.echofex.futures.scala_old.service.impl;
 
-import com.echofex.futures.java5.service.EmploymentService;
+import com.echofex.futures.scala_old.service.EmploymentService;
 import com.echofex.httpservices.HttpEmploymentService;
 import com.echofex.httpservices.impl.HttpEmploymentServiceImpl;
 import com.echofex.model.Employer;
 
-import java.util.LinkedList;
 import java.util.List;
 
 /**

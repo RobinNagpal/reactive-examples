@@ -1,6 +1,6 @@
-package com.echofex.futures.java5.service.impl;
+package com.echofex.futures.scala_old.service.impl;
 
-import com.echofex.futures.java5.service.FinancialService;
+import com.echofex.futures.scala_old.service.FinancialService;
 import com.echofex.httpservices.HttpFinancialService;
 import com.echofex.httpservices.impl.HttpFinancialServiceImpl;
 import com.echofex.model.BankDetails;

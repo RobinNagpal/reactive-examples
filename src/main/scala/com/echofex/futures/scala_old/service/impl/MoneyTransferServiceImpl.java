@@ -1,6 +1,6 @@
-package com.echofex.futures.java5.service.impl;
+package com.echofex.futures.scala_old.service.impl;
 
-import com.echofex.futures.java5.service.MoneyTransferService;
+import com.echofex.futures.scala_old.service.MoneyTransferService;
 import com.echofex.httpservices.HttpMoneyTransferService;
 import com.echofex.httpservices.impl.HttpMoneyTransferServiceImpl;
 

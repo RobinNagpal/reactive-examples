@@ -49,19 +49,29 @@ public class UserHelper {
                                     financialService.getCurrencyConversion(employerCurrency, userHomeCurrency)
                             );
 
-                            Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
-                            CompletableFuture<Double> earlyEarningsInHomeCountryCF = currencyConvCF.thenApplyAsync(currencyConv -> {
-                                //Double yearlyEarnings = employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId());
-                                return currencyConv * yearlyEarnings;
-                            });
-
+                            CompletableFuture<Double> yearlyEarningsCF = CompletableFuture.supplyAsync(() -> employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId()));
+                            CompletableFuture<Double> earlyEarningsInHomeCountryCF = currencyConvCF.thenCombineAsync(yearlyEarningsCF, (currencyConv, yearlyEarnings) -> currencyConv * yearlyEarnings);
                             return earlyEarningsInHomeCountryCF;
-
                         }
                 )
-
         );
 
+
+
+        CompletableFuture<BankDetails> bankDetailsCF = userIdFuture.thenApplyAsync(financialService::getBankDetailsForUser);
+        CompletableFuture<MoneyTransferService> moneyTransferServiceCF = userHomeCurrencyCF.thenApplyAsync(MoneyTransferServiceFactory::getMoneyTransferServiceForCurrency);
+
+
+        MoneyTransferService moneyTransferService = moneyTransferServiceCF.get();
+        BankDetails bankDetails = bankDetailsCF.get();
+
+        Object[] stream = employerSalariesCF.get().toArray();
+        double totalEarnings = 0.0;
+        for (Object employerEarning : stream) {
+            CompletableFuture<Double>  eay = (CompletableFuture<Double>) employerEarning;
+            totalEarnings += eay.get();
+        }
+/*
         CompletableFuture<Double> totalSalaryCF = employerSalariesCF.thenApplyAsync(salariesStream -> {
             List<CompletableFuture<Double>> salariesCF = salariesStream.collect(Collectors.toList());
             double totalSalary = 0.0;
@@ -74,15 +84,9 @@ public class UserHelper {
             }
             return totalSalary;
         });
+*/
 
-
-        CompletableFuture<BankDetails> bankDetailsCF = userIdFuture.thenApplyAsync(financialService::getBankDetailsForUser);
-        CompletableFuture<MoneyTransferService> moneyTransferServiceCF = userHomeCurrencyCF.thenApplyAsync(MoneyTransferServiceFactory::getMoneyTransferServiceForCurrency);
-
-
-        MoneyTransferService moneyTransferService = moneyTransferServiceCF.get();
-        BankDetails bankDetails = bankDetailsCF.get();
-        return moneyTransferService.transferMoneyToAccount(bankDetails.getBankName(), bankDetails.getAccountNumber(), totalSalaryCF.get());
+        return moneyTransferService.transferMoneyToAccount(bankDetails.getBankName(), bankDetails.getAccountNumber(), totalEarnings);
     }
 
 
