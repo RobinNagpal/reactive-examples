@@ -1,7 +1,7 @@
 package com.echofex.futures.scala_old.util;
 
-import com.echofex.futures.java8_old.service.MoneyTransferService;
-import com.echofex.futures.java8_old.service.impl.MoneyTransferServiceImpl;
+import com.echofex.futures.scala_old.service.MoneyTransferService;
+import com.echofex.futures.scala_old.service.impl.MoneyTransferServiceImpl;
 
 /**
  * Created by robin on 3/6/16.

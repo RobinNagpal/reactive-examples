@@ -1,13 +1,9 @@
 package com.echofex.futures.scala_old
 
 
-import java.util
 import java.util.concurrent.TimeUnit
 
-import com.echofex.futures.scala_old.service.EmploymentService
-import com.echofex.futures.scala_old.service.FinancialService
 import com.echofex.futures.scala_old.service.MoneyTransferService
-import com.echofex.futures.scala_old.service.UserService
 import com.echofex.futures.scala_old.service.impl.EmploymentServiceImpl
 import com.echofex.futures.scala_old.service.impl.FinancialServiceImpl
 import com.echofex.futures.scala_old.service.impl.UserServiceImpl
@@ -16,8 +12,9 @@ import com.echofex.model.BankDetails
 import com.echofex.model.Employer
 import com.echofex.model.User
 import scala.collection.JavaConverters._
-
-import scala.concurrent.Future
+import scala.collection.mutable
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 
 /**
@@ -38,20 +35,37 @@ class UserHelper {
     val userF: Future[User] = Future(userService.getUserForId(userId))
 
     val employersF: Future[java.util.List[Employer]] = Future(employmentService.findEmployersForUserInYear(userId, "2015"))
-    val userHomeCurrency: Future[String] = userF.map(user => financialService.getCurrencyCodeForCountry(user.getCountryCode))
+    val userHomeCurrencyF: Future[String] = userF.map(user => financialService.getCurrencyCodeForCountry(user.getCountryCode))
 
-    employersF.map {
+    val employerYearlyEarningsF: Future[mutable.Buffer[Future[Double]]] = employersF.map {
       _.asScala.map {
         emp => {
+          val employerCurrencyF = Future(financialService.getCurrencyCodeForCountry(emp.getCountryCode))
+          val yearlyEarningsF = Future(employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId()))
           val yearlyEmpEarning: Future[Double] = for {
-            employerCurrency <- Future(financialService.getCurrencyCodeForCountry(emp.getCountryCode))
-            currencyConv: Double <- financialService.getCurrencyConversion(employerCurrency, userHomeCurrency.toString)
-            yearlyEarnings: Double <- employmentService.getYearlyEarningForUserWithEmployer(userId, emp.getId())
+            employerCurrency <- employerCurrencyF
+            userHomeCurrency <- userHomeCurrencyF
+            currencyConv <- Future(financialService.getCurrencyConversion(employerCurrency, userHomeCurrency))
+            yearlyEarnings <- yearlyEarningsF
           } yield (currencyConv * yearlyEarnings)
           yearlyEmpEarning
         }
       }
     }
-    return null
+
+    val bankDetailsF: Future[BankDetails] = userIdF.map(financialService.getBankDetailsForUser)
+    val moneyTransferServiceF: Future[MoneyTransferService] = userHomeCurrencyF.map(MoneyTransferServiceFactory.getMoneyTransferServiceForCurrency)
+    val employerEarningsF: Future[mutable.Buffer[Double]] = employerYearlyEarningsF.flatMap(Future.sequence(_))
+    val totalEarningsF: Future[Double] = employerEarningsF.map(_.sum)
+
+    val moneyThatWasTransferred: Future[Double] = for {
+      bankDetails <- bankDetailsF
+      moneyTransferService <- moneyTransferServiceF
+      totalEarnings <- totalEarningsF
+      transferredMoney <- Future(moneyTransferService.transferMoneyToAccount(bankDetails.getBankName, bankDetails.getAccountNumber, totalEarnings))
+    } yield transferredMoney
+
+
+    return Await.result(moneyThatWasTransferred, Duration(20, TimeUnit.SECONDS))
   }
 }
